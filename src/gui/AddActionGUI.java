@@ -37,6 +37,7 @@ public class AddActionGUI {
 	private JComboBox conditionsTypeBox;
 	private JTextField delayTextField;
 	private Bot bot;
+	private JTextArea tweetTextArea;
 
 
 	/**
@@ -165,7 +166,7 @@ public class AddActionGUI {
 		frame.getContentPane().add(tweetTextLabel);
 		
 		
-		JTextArea tweetTextArea = new JTextArea();
+		tweetTextArea = new JTextArea();
 		tweetTextArea.setEditable(true);
 		tweetTextArea.setLineWrap(true);
 		
@@ -183,9 +184,9 @@ public class AddActionGUI {
 			keywords[i] = (String)keywordListModel.getElementAt(i);
 		}
 		if(!delayTextField.getText().equals("")){
-			action = new Action((String)actionsBox.getSelectedItem(), (String)conditionsTypeBox.getSelectedItem(), Long.parseLong((String)delayTextField.getText()), "test Text", keywords);
+			action = new Action((String)actionsBox.getSelectedItem(), (String)conditionsTypeBox.getSelectedItem(), Long.parseLong((String)delayTextField.getText()), tweetTextArea.getText(), keywords);
 		} else {
-			action = new Action((String)actionsBox.getSelectedItem(), (String)conditionsTypeBox.getSelectedItem(), 0, "test Text", keywords);
+			action = new Action((String)actionsBox.getSelectedItem(), (String)conditionsTypeBox.getSelectedItem(), 0, tweetTextArea.getText(), keywords);
 		}
 		bot.addAction(action);
 		
