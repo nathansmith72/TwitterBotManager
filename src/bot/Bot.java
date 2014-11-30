@@ -44,4 +44,20 @@ public class Bot implements Serializable{
 	public String getName(){
 		return new String(name);
 	}
+	
+	public String getConsumerKey(){
+		return new String(consumerKey);
+	}
+	
+	public String getConsumerSecret(){
+		return new String(consumerSecret);
+	}
+	
+	public String getAccessToken(){
+		return new String(accessToken);
+	}
+	
+	public String getAccessSecret(){
+		return new String(accessSecret);
+	}
 }

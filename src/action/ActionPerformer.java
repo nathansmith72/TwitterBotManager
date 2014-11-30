@@ -7,6 +7,8 @@
 
 package action;
 
+import java.util.ArrayList;
+
 import twitter4j.FilterQuery;
 import twitter4j.StallWarning;
 import twitter4j.Status;
@@ -18,27 +20,63 @@ import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
+import bot.Bot;
+
 public class ActionPerformer implements Runnable{
+
+	private ArrayList<Action> actions;
+	private Bot bot;
+	private static TwitterStream twitterStream;
+	
 	public void run(){
 	
 	}
 	
-	private Action action;
-	
-	public ActionPerformer(Action action){
-		this.action = action;
+	public ActionPerformer(Bot bot){
+		this.bot = bot;
+		logOnKeyword();
 	}
 	
 	public void tweetOnDelay(){
-		new java.util.Timer().schedule( 
-        new java.util.TimerTask() {
-            @Override
-            public void run() {
-                Twitter twitter = TwitterFactory.getSingleton();
-				Status status = twitter.updateStatus(action.getTweetText());
-				System.out.println("Successfully updated the status to [" + status.getText() + "].");
-            }
-        }, 
-        action.getOnTimerDelay());
+		
+	}
+	
+	public void logOnKeyword(){
+		StatusListener listener = new StatusListener(){
+		            public void onStatus(Status status) {
+		            	gui.GUI.updateStatusText(status.getUser().getName() + " : " + status.getText() + "\n\n");
+		            }
+		            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
+		            public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
+		            public void onException(Exception ex) {
+		                ex.printStackTrace();
+		            }
+					@Override
+					public void onScrubGeo(long arg0, long arg1) {
+						// TODO Auto-generated method stub
+
+					}
+					@Override
+					public void onStallWarning(StallWarning arg0) {
+						// TODO Auto-generated method stub
+
+					}
+		        };
+		        String[] keywords = {"Science"};
+		        ConfigurationBuilder builder = new ConfigurationBuilder();
+
+				builder.setOAuthAccessToken(bot.getAccessToken());
+				builder.setOAuthAccessTokenSecret(bot.getAccessSecret());
+				builder.setOAuthConsumerKey(bot.getConsumerKey());
+				builder.setOAuthConsumerSecret(bot.getConsumerSecret());
+
+				twitterStream = new TwitterStreamFactory(builder.build()).getInstance();
+				twitterStream.addListener(listener);
+				// sample() method internally creates a thread which manipulates TwitterStream and calls these adequate listener methods continuously.
+				FilterQuery filter = new FilterQuery();
+				filter.track(keywords);
+				twitterStream.filter(filter);
+		        gui.GUI.updateStatusText("Running bot" +"\n\n");
+				
 	}
 }

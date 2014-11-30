@@ -43,15 +43,19 @@ import javax.swing.JCheckBox;
 
 import twitter.TwitterHelper;
 import bot.Bot;
+import action.ActionPerformer;
 
 public class GUI {
 
 	private JFrame frame;
-	private JScrollPane botStatusScrollPane;
+	static JScrollPane botStatusScrollPane = new JScrollPane();
 	private DefaultListModel botList;
 	static int listIndex;
 	static String listValue;
 	JList<String> botListPanel;
+	private static String statusText = "";
+	final static JTextArea botStatusTextArea = new JTextArea();
+	final static JCheckBox autoScrollToBottomCheckBox = new JCheckBox("Auto Scroll to Bottom");
 
 	/**
 	 * Create the window.
@@ -86,7 +90,7 @@ public class GUI {
 		//frame.getContentPane().add(botsPanel);
 		runBotsPanel.setLayout(null);
 
-		final JCheckBox autoScrollToBottomCheckBox = new JCheckBox("Auto Scroll to Bottom");
+		
 		autoScrollToBottomCheckBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(autoScrollToBottomCheckBox.isSelected()){
@@ -104,13 +108,17 @@ public class GUI {
 		botListPanel = new JList<String>();
 		botListScrollpPane.setViewportView(botListPanel);
 		loadBotList(botList);
+		botListPanel.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent evt){
+				listIndex = botListPanel.getSelectedIndex();
+				listValue = botListPanel.getSelectedValue();
+			}
+		});
 		botListPanel.setModel(botList);
 
-		botStatusScrollPane = new JScrollPane();
 		botStatusScrollPane.setBounds(150, 25, 515, 300);
 		runBotsPanel.add(botStatusScrollPane);
 
-		final JTextArea botStatusTextArea = new JTextArea();
 		botStatusTextArea.setEditable(false);
 		botStatusTextArea.setLineWrap(true);
 		botStatusScrollPane.setViewportView(botStatusTextArea);
@@ -128,8 +136,7 @@ public class GUI {
 		JButton btnNewButton = new JButton("Stop");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TwitterHelper.stopFilterStream();
-				botStatusTextArea.setText(botStatusTextArea.getText() + "Stopping Bot" + "\n\n");
+				//code this
 			}
 		});
 		btnNewButton.setBounds(35, 239, 80, 23);
@@ -138,7 +145,20 @@ public class GUI {
 		final JButton btnRunBot = new JButton("Run");
 		btnRunBot.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-		        
+		        try{
+					Bot bot;
+					FileInputStream fileIn =
+						new FileInputStream("Bots/" + listValue);
+					ObjectInputStream in = new ObjectInputStream(fileIn);
+					bot = (Bot)in.readObject();
+					in.close();
+					fileIn.close();
+					ActionPerformer actionPerformer = new ActionPerformer(bot);
+				}catch(IOException i){
+					i.printStackTrace();
+				}catch(ClassNotFoundException i){
+					i.printStackTrace();
+				}
 			}
 		});
 		btnRunBot.setBounds(35, 205, 80, 23);
@@ -228,5 +248,24 @@ public class GUI {
 	public static void deleteBot(){
 		File file = new File(System.getProperty("user.dir") + "/Bots/" + listValue);
 		file.delete();
+	}
+	
+	public static void updateStatusText(String textToAdd){
+		statusText = statusText + textToAdd;
+		botStatusTextArea.setText(statusText);
+		if(botStatusTextArea.getLineCount()>150){
+		    while(botStatusTextArea.getLineCount() > 70){
+		    int end;
+			try {
+				end = botStatusTextArea.getLineEndOffset(0);
+				botStatusTextArea.replaceRange("", 0, end);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+		    }
+		}
+		if(autoScrollToBottomCheckBox.isSelected()){
+		    botStatusScrollPane.getVerticalScrollBar().setValue(botStatusScrollPane.getVerticalScrollBar().getMaximum());
+		}
 	}
 }

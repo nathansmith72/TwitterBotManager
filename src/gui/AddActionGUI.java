@@ -90,7 +90,7 @@ public class AddActionGUI {
 		actionsLabel.setBounds(10,20,80,23);
 		frame.getContentPane().add(actionsLabel);
 		
-		String[] possibleActions = { "Tweet", "Retweet", "Log", "Favorite" };
+		String[] possibleActions = { "Tweet", "Retweet", "Log", "Favorite", "Reply" };
 		actionsBox = new JComboBox(possibleActions);
 		actionsBox.setBounds(100, 20, 100, 23);
 		actionsBox.setSelectedIndex(0);
