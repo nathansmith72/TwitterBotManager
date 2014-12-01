@@ -56,6 +56,7 @@ public class GUI {
 	private static String statusText = "";
 	final static JTextArea botStatusTextArea = new JTextArea();
 	final static JCheckBox autoScrollToBottomCheckBox = new JCheckBox("Auto Scroll to Bottom");
+	private ActionPerformer actionPerformer;
 
 	/**
 	 * Create the window.
@@ -80,6 +81,7 @@ public class GUI {
 				loadBotList(botList);
 			}
 		});
+		actionPerformer = new ActionPerformer();
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(0, 0, 684, 600);
@@ -153,7 +155,7 @@ public class GUI {
 					bot = (Bot)in.readObject();
 					in.close();
 					fileIn.close();
-					ActionPerformer actionPerformer = new ActionPerformer(bot);
+					actionPerformer.runBot(bot);
 				}catch(IOException i){
 					i.printStackTrace();
 				}catch(ClassNotFoundException i){

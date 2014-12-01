@@ -28,7 +28,11 @@ public class ActionPerformer{
 	private Bot bot;
 	private static TwitterStream twitterStream;
 	
-	public ActionPerformer(Bot bot){
+	public ActionPerformer(){
+		
+	}
+	
+	public void runBot(Bot bot){
 		this.bot = bot;
 		ArrayList<Action> actions = bot.getActions();
 		System.out.println(actions.get(0).getAction());
@@ -38,6 +42,11 @@ public class ActionPerformer{
 				logOnKeyword(actions.get(i).getKeywords());
 			}
 		}
+	}
+	
+	public void stopBot(){
+		twitterStream.cleanUp(); // shutdown internal stream consuming thread
+		twitterStream.shutdown();
 	}
 	
 	public void tweetOnDelay(){
