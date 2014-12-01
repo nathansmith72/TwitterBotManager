@@ -54,7 +54,11 @@ public class Action implements Serializable{
 		return tweetText;
 	}
 	
-	public String getKeywords(){
+	public String[] getKeywords(){
+		return keyWords;
+	}
+	
+	public String getFormattedKeywords(){
 		String formattedKeywords = "";
 		for(int i = 0; i<keyWords.length; i++){
 			if(i < keyWords.length-1){

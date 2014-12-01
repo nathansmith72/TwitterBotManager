@@ -151,7 +151,7 @@ public class ModifyBotGUI {
 		}
 		ArrayList<Action> botActions = bot.getActions();
 		for(int i = 0; i<botActions.size(); i++){
-			String[] rowData = { botActions.get(i).getAction(), botActions.get(i).getConditionType(), String.valueOf(botActions.get(i).getOnTimerDelay()), botActions.get(i).getKeywords(), botActions.get(i).getTweetText() };
+			String[] rowData = { botActions.get(i).getAction(), botActions.get(i).getConditionType(), String.valueOf(botActions.get(i).getOnTimerDelay()), botActions.get(i).getFormattedKeywords(), botActions.get(i).getTweetText() };
 			actionTableModel.addRow(rowData);
 		}
 	}

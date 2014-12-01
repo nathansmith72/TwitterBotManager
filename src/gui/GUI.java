@@ -255,14 +255,15 @@ public class GUI {
 		botStatusTextArea.setText(statusText);
 		if(botStatusTextArea.getLineCount()>150){
 		    while(botStatusTextArea.getLineCount() > 70){
-		    int end;
-			try {
-				end = botStatusTextArea.getLineEndOffset(0);
-				botStatusTextArea.replaceRange("", 0, end);
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
+				int end;
+				try {
+					end = botStatusTextArea.getLineEndOffset(0);
+					botStatusTextArea.replaceRange("", 0, end);
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
 		    }
+			statusText = botStatusTextArea.getText();
 		}
 		if(autoScrollToBottomCheckBox.isSelected()){
 		    botStatusScrollPane.getVerticalScrollBar().setValue(botStatusScrollPane.getVerticalScrollBar().getMaximum());

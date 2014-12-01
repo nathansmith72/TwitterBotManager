@@ -22,26 +22,29 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import bot.Bot;
 
-public class ActionPerformer implements Runnable{
+public class ActionPerformer{
 
 	private ArrayList<Action> actions;
 	private Bot bot;
 	private static TwitterStream twitterStream;
 	
-	public void run(){
-	
-	}
-	
 	public ActionPerformer(Bot bot){
 		this.bot = bot;
-		logOnKeyword();
+		ArrayList<Action> actions = bot.getActions();
+		System.out.println(actions.get(0).getAction());
+		for(int i = 0; i<actions.size(); i++){
+			if(actions.get(i).getAction().equals(Action.LOG)){
+				System.out.println("inside the if statement");
+				logOnKeyword(actions.get(i).getKeywords());
+			}
+		}
 	}
 	
 	public void tweetOnDelay(){
 		
 	}
 	
-	public void logOnKeyword(){
+	public void logOnKeyword(String[] keywords){
 		StatusListener listener = new StatusListener(){
 		            public void onStatus(Status status) {
 		            	gui.GUI.updateStatusText(status.getUser().getName() + " : " + status.getText() + "\n\n");
@@ -62,7 +65,6 @@ public class ActionPerformer implements Runnable{
 
 					}
 		        };
-		        String[] keywords = {"Science"};
 		        ConfigurationBuilder builder = new ConfigurationBuilder();
 
 				builder.setOAuthAccessToken(bot.getAccessToken());
