@@ -138,7 +138,7 @@ public class GUI {
 		JButton btnNewButton = new JButton("Stop");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//code this
+				actionPerformer.stopBot();
 			}
 		});
 		btnNewButton.setBounds(35, 239, 80, 23);

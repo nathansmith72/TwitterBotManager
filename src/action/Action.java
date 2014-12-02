@@ -26,14 +26,14 @@ public class Action implements Serializable{
 	//variables
 	private String action;
 	private String conditionType;
-	private long onTimerDelay;
+	private long delay;
 	private String[] keyWords;
 	private String tweetText;
 
-	public Action(String action, String conditionType, long onTimerDelay, String tweetText, String[] keyWords){
+	public Action(String action, String conditionType, long delay, String tweetText, String[] keyWords){
 		this.action = action;
 		this.conditionType = conditionType;
-		this.onTimerDelay = onTimerDelay;
+		this.delay = delay;
 		this.tweetText = tweetText;
 		this.keyWords = keyWords.clone();
 	}
@@ -46,8 +46,8 @@ public class Action implements Serializable{
 		return conditionType;
 	}
 	
-	public long getOnTimerDelay(){
-		return onTimerDelay;
+	public long getDelay(){
+		return delay;
 	}
 	
 	public String getTweetText(){

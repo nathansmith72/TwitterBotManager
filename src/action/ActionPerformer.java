@@ -38,8 +38,12 @@ public class ActionPerformer{
 		System.out.println(actions.get(0).getAction());
 		for(int i = 0; i<actions.size(); i++){
 			if(actions.get(i).getAction().equals(Action.LOG)){
-				System.out.println("inside the if statement");
-				logOnKeyword(actions.get(i).getKeywords());
+				logOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay());
+			}
+		}
+		for(int i = 0; i<actions.size(); i++){
+			if(actions.get(i).getAction().equals(Action.REPLY)){
+				replyOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay());
 			}
 		}
 	}
@@ -47,13 +51,18 @@ public class ActionPerformer{
 	public void stopBot(){
 		twitterStream.cleanUp(); // shutdown internal stream consuming thread
 		twitterStream.shutdown();
+		gui.GUI.updateStatusText("Stopping Bot" +"\n\n");
 	}
 	
 	public void tweetOnDelay(){
 		
 	}
 	
-	public void logOnKeyword(String[] keywords){
+	public void replyOnKeyword(String[] keywords, long delay){
+	
+	}
+	
+	public void logOnKeyword(String[] keywords, long delay){
 		StatusListener listener = new StatusListener(){
 		            public void onStatus(Status status) {
 		            	gui.GUI.updateStatusText(status.getUser().getName() + " : " + status.getText() + "\n\n");
@@ -87,7 +96,7 @@ public class ActionPerformer{
 				FilterQuery filter = new FilterQuery();
 				filter.track(keywords);
 				twitterStream.filter(filter);
-		        gui.GUI.updateStatusText("Running bot" +"\n\n");
+		        gui.GUI.updateStatusText("Running Bot" +"\n\n");
 				
 	}
 }
