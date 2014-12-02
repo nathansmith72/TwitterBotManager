@@ -63,6 +63,7 @@ public class ActionPerformer{
 	}
 	
 	public void replyOnKeyword(String[] keywords, long delay, final String replyText){
+		final long minDelay = 60;
 		StatusListener listener = new StatusListener(){
 		    public void onStatus(Status status) {
 				String tweetText = "@" + status.getUser().getName() + " " + replyText;
