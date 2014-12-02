@@ -14,11 +14,14 @@ import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
 import twitter4j.StatusListener;
+import twitter4j.StatusUpdate;
+import twitter4j.auth.AccessToken;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 import twitter4j.conf.ConfigurationBuilder;
+import twitter4j.TwitterException;
 
 import bot.Bot;
 
@@ -42,8 +45,9 @@ public class ActionPerformer{
 			}
 		}
 		for(int i = 0; i<actions.size(); i++){
+			System.out.println(Action.REPLY + " " + actions.get(i).getAction());
 			if(actions.get(i).getAction().equals(Action.REPLY)){
-				replyOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay());
+				replyOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay(), actions.get(i).getTweetText());
 			}
 		}
 	}
@@ -58,45 +62,86 @@ public class ActionPerformer{
 		
 	}
 	
-	public void replyOnKeyword(String[] keywords, long delay){
-	
+	public void replyOnKeyword(String[] keywords, long delay, final String replyText){
+		StatusListener listener = new StatusListener(){
+		    public void onStatus(Status status) {
+				String tweetText = "@" + status.getUser().getName() + " " + replyText;
+				TwitterFactory factory = new TwitterFactory();
+				Twitter twitter = factory.getInstance();
+				twitter.setOAuthConsumer(bot.getConsumerKey(), bot.getConsumerSecret());
+				AccessToken accessToken = new AccessToken(bot.getAccessToken(), bot.getAccessSecret());
+				twitter.setOAuthAccessToken(accessToken);
+				StatusUpdate statusUpdate = new StatusUpdate(tweetText);
+				//statusUpdate.setInReplyToStatusId(status.getId());
+				try{
+					Status updateStatus = twitter.updateStatus(statusUpdate);
+				} catch(TwitterException e){
+					e.printStackTrace();
+				}
+		        gui.GUI.updateStatusText("TWEETED: \"" + replyText + "\" to " + status.getUser().getName() + "\n\n");
+		    }
+		    public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
+		    public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
+		    public void onException(Exception ex) {
+		        ex.printStackTrace();
+		    }
+			@Override
+			public void onScrubGeo(long arg0, long arg1) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void onStallWarning(StallWarning arg0) {
+				// TODO Auto-generated method stub
+			}
+		};
+		ConfigurationBuilder builder = new ConfigurationBuilder();
+
+		builder.setOAuthAccessToken(bot.getAccessToken());
+		builder.setOAuthAccessTokenSecret(bot.getAccessSecret());
+		builder.setOAuthConsumerKey(bot.getConsumerKey());
+		builder.setOAuthConsumerSecret(bot.getConsumerSecret());
+
+		twitterStream = new TwitterStreamFactory(builder.build()).getInstance();
+		twitterStream.addListener(listener);
+		// sample() method internally creates a thread which manipulates TwitterStream and calls these adequate listener methods continuously.
+		FilterQuery filter = new FilterQuery();
+		filter.track(keywords);
+		twitterStream.filter(filter);
+		gui.GUI.updateStatusText("Running Bot" +"\n\n");
 	}
 	
 	public void logOnKeyword(String[] keywords, long delay){
 		StatusListener listener = new StatusListener(){
-		            public void onStatus(Status status) {
-		            	gui.GUI.updateStatusText(status.getUser().getName() + " : " + status.getText() + "\n\n");
-		            }
-		            public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
-		            public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
-		            public void onException(Exception ex) {
-		                ex.printStackTrace();
-		            }
-					@Override
-					public void onScrubGeo(long arg0, long arg1) {
-						// TODO Auto-generated method stub
+		    public void onStatus(Status status) {
+		        gui.GUI.updateStatusText(status.getUser().getName() + " : " + status.getText() + "\n\n");
+		    }
+		    public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
+		    public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
+		    public void onException(Exception ex) {
+		        ex.printStackTrace();
+		    }
+			@Override
+			public void onScrubGeo(long arg0, long arg1) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void onStallWarning(StallWarning arg0) {
+				// TODO Auto-generated method stub
+			}
+		};
+		ConfigurationBuilder builder = new ConfigurationBuilder();
 
-					}
-					@Override
-					public void onStallWarning(StallWarning arg0) {
-						// TODO Auto-generated method stub
+		builder.setOAuthAccessToken(bot.getAccessToken());
+		builder.setOAuthAccessTokenSecret(bot.getAccessSecret());
+		builder.setOAuthConsumerKey(bot.getConsumerKey());
+		builder.setOAuthConsumerSecret(bot.getConsumerSecret());
 
-					}
-		        };
-		        ConfigurationBuilder builder = new ConfigurationBuilder();
-
-				builder.setOAuthAccessToken(bot.getAccessToken());
-				builder.setOAuthAccessTokenSecret(bot.getAccessSecret());
-				builder.setOAuthConsumerKey(bot.getConsumerKey());
-				builder.setOAuthConsumerSecret(bot.getConsumerSecret());
-
-				twitterStream = new TwitterStreamFactory(builder.build()).getInstance();
-				twitterStream.addListener(listener);
-				// sample() method internally creates a thread which manipulates TwitterStream and calls these adequate listener methods continuously.
-				FilterQuery filter = new FilterQuery();
-				filter.track(keywords);
-				twitterStream.filter(filter);
-		        gui.GUI.updateStatusText("Running Bot" +"\n\n");
-				
+		twitterStream = new TwitterStreamFactory(builder.build()).getInstance();
+		twitterStream.addListener(listener);
+		// sample() method internally creates a thread which manipulates TwitterStream and calls these adequate listener methods continuously.
+		FilterQuery filter = new FilterQuery();
+		filter.track(keywords);
+		twitterStream.filter(filter);
+		gui.GUI.updateStatusText("Running Bot" +"\n\n");
 	}
 }
