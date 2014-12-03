@@ -75,9 +75,6 @@ public class ActionPerformer{
 		StatusListener listener = new StatusListener(){
 		    public void onStatus(Status status) {
 				long currentTime = System.currentTimeMillis();
-				System.out.println("Current Time: " + currentTime);
-				System.out.println("Previous Action Time: " + previousActionTime);
-				System.out.println("final Delay:" + finalDelay);
 				if((currentTime - previousActionTime) > finalDelay){
 					String tweetText = "@" + status.getUser().getName() + " " + replyText;
 					TwitterFactory factory = new TwitterFactory();
