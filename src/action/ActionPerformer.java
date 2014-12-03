@@ -8,6 +8,7 @@
 package action;
 
 import java.util.ArrayList;
+import java.lang.System;
 
 import twitter4j.FilterQuery;
 import twitter4j.StallWarning;
@@ -30,6 +31,7 @@ public class ActionPerformer{
 	private ArrayList<Action> actions;
 	private Bot bot;
 	private static TwitterStream twitterStream;
+	private long previousActionTime;
 	
 	public ActionPerformer(){
 		
@@ -41,13 +43,12 @@ public class ActionPerformer{
 		System.out.println(actions.get(0).getAction());
 		for(int i = 0; i<actions.size(); i++){
 			if(actions.get(i).getAction().equals(Action.LOG)){
-				logOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay());
+				logOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay()*1000);
 			}
 		}
 		for(int i = 0; i<actions.size(); i++){
-			System.out.println(Action.REPLY + " " + actions.get(i).getAction());
 			if(actions.get(i).getAction().equals(Action.REPLY)){
-				replyOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay(), actions.get(i).getTweetText());
+				replyOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay()*1000, actions.get(i).getTweetText());
 			}
 		}
 	}
@@ -63,23 +64,37 @@ public class ActionPerformer{
 	}
 	
 	public void replyOnKeyword(String[] keywords, long delay, final String replyText){
-		final long minDelay = 60;
+		System.out.println(delay);
+		final long minDelay = 60000; //min delay in milliseconds
+		if(delay < minDelay){
+			delay = minDelay;
+		}
+		final long finalDelay = delay;
+		previousActionTime = 0;
+		System.out.println(previousActionTime);
 		StatusListener listener = new StatusListener(){
 		    public void onStatus(Status status) {
-				String tweetText = "@" + status.getUser().getName() + " " + replyText;
-				TwitterFactory factory = new TwitterFactory();
-				Twitter twitter = factory.getInstance();
-				twitter.setOAuthConsumer(bot.getConsumerKey(), bot.getConsumerSecret());
-				AccessToken accessToken = new AccessToken(bot.getAccessToken(), bot.getAccessSecret());
-				twitter.setOAuthAccessToken(accessToken);
-				StatusUpdate statusUpdate = new StatusUpdate(tweetText);
-				//statusUpdate.setInReplyToStatusId(status.getId());
-				try{
-					Status updateStatus = twitter.updateStatus(statusUpdate);
-				} catch(TwitterException e){
-					e.printStackTrace();
+				long currentTime = System.currentTimeMillis();
+				System.out.println("Current Time: " + currentTime);
+				System.out.println("Previous Action Time: " + previousActionTime);
+				System.out.println("final Delay:" + finalDelay);
+				if((currentTime - previousActionTime) > finalDelay){
+					String tweetText = "@" + status.getUser().getName() + " " + replyText;
+					TwitterFactory factory = new TwitterFactory();
+					Twitter twitter = factory.getInstance();
+					twitter.setOAuthConsumer(bot.getConsumerKey(), bot.getConsumerSecret());
+					AccessToken accessToken = new AccessToken(bot.getAccessToken(), bot.getAccessSecret());
+					twitter.setOAuthAccessToken(accessToken);
+					StatusUpdate statusUpdate = new StatusUpdate(tweetText);
+					//statusUpdate.setInReplyToStatusId(status.getId());
+					try{
+						Status updateStatus = twitter.updateStatus(statusUpdate);
+					} catch(TwitterException e){
+						e.printStackTrace();
+					}
+					gui.GUI.updateStatusText("TWEETED: \"" + replyText + "\" to " + status.getUser().getName() + "\n\n");
+					previousActionTime = System.currentTimeMillis();
 				}
-		        gui.GUI.updateStatusText("TWEETED: \"" + replyText + "\" to " + status.getUser().getName() + "\n\n");
 		    }
 		    public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
 		    public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
