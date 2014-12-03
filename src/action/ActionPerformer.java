@@ -76,7 +76,7 @@ public class ActionPerformer{
 		    public void onStatus(Status status) {
 				long currentTime = System.currentTimeMillis();
 				if((currentTime - previousActionTime) > finalDelay){
-					String tweetText = "@" + status.getUser().getName() + " " + replyText;
+					String tweetText = "@" + status.getUser().getScreenName() + " " + replyText;
 					TwitterFactory factory = new TwitterFactory();
 					Twitter twitter = factory.getInstance();
 					twitter.setOAuthConsumer(bot.getConsumerKey(), bot.getConsumerSecret());
@@ -89,7 +89,7 @@ public class ActionPerformer{
 					} catch(TwitterException e){
 						e.printStackTrace();
 					}
-					gui.GUI.updateStatusText("TWEETED: \"" + replyText + "\" to " + status.getUser().getName() + "\n\n");
+					gui.GUI.updateStatusText("TWEETED: \"" + replyText + "\" to " + status.getUser().getScreenName() + "\n\n");
 					previousActionTime = System.currentTimeMillis();
 				}
 		    }
