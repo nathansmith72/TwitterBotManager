@@ -51,6 +51,11 @@ public class ActionPerformer{
 				replyOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay()*1000, actions.get(i).getTweetText());
 			}
 		}
+		for(int i = 0; i<actions.size(); i++){
+			if(actions.get(i).getAction().equals(Action.FAVORITE)){
+				favoriteOnKeyword(actions.get(i).getKeywords(), actions.get(i).getDelay()*1000);
+			}
+		}
 	}
 	
 	public void stopBot(){
@@ -64,7 +69,6 @@ public class ActionPerformer{
 	}
 	
 	public void replyOnKeyword(String[] keywords, long delay, final String replyText){
-		System.out.println(delay);
 		final long minDelay = 60000; //min delay in milliseconds
 		if(delay < minDelay){
 			delay = minDelay;
@@ -83,7 +87,7 @@ public class ActionPerformer{
 					AccessToken accessToken = new AccessToken(bot.getAccessToken(), bot.getAccessSecret());
 					twitter.setOAuthAccessToken(accessToken);
 					StatusUpdate statusUpdate = new StatusUpdate(tweetText);
-					//statusUpdate.setInReplyToStatusId(status.getId());
+					statusUpdate.setInReplyToStatusId(status.getId());
 					try{
 						Status updateStatus = twitter.updateStatus(statusUpdate);
 					} catch(TwitterException e){
@@ -127,6 +131,62 @@ public class ActionPerformer{
 		StatusListener listener = new StatusListener(){
 		    public void onStatus(Status status) {
 		        gui.GUI.updateStatusText(status.getUser().getName() + " : " + status.getText() + "\n\n");
+		    }
+		    public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
+		    public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
+		    public void onException(Exception ex) {
+		        ex.printStackTrace();
+		    }
+			@Override
+			public void onScrubGeo(long arg0, long arg1) {
+				// TODO Auto-generated method stub
+			}
+			@Override
+			public void onStallWarning(StallWarning arg0) {
+				// TODO Auto-generated method stub
+			}
+		};
+		ConfigurationBuilder builder = new ConfigurationBuilder();
+
+		builder.setOAuthAccessToken(bot.getAccessToken());
+		builder.setOAuthAccessTokenSecret(bot.getAccessSecret());
+		builder.setOAuthConsumerKey(bot.getConsumerKey());
+		builder.setOAuthConsumerSecret(bot.getConsumerSecret());
+
+		twitterStream = new TwitterStreamFactory(builder.build()).getInstance();
+		twitterStream.addListener(listener);
+		// sample() method internally creates a thread which manipulates TwitterStream and calls these adequate listener methods continuously.
+		FilterQuery filter = new FilterQuery();
+		filter.track(keywords);
+		twitterStream.filter(filter);
+		gui.GUI.updateStatusText("Running Bot" +"\n\n");
+	}
+	
+	public void favoriteOnKeyword(String[] keywords, long delay){
+		final long minDelay = 60000; //min delay in milliseconds
+		if(delay < minDelay){
+			delay = minDelay;
+		}
+		final long finalDelay = delay;
+		previousActionTime = 0;
+		System.out.println(previousActionTime);
+		StatusListener listener = new StatusListener(){
+		    public void onStatus(Status status) {
+				long currentTime = System.currentTimeMillis();
+				if((currentTime - previousActionTime) > finalDelay){
+					TwitterFactory factory = new TwitterFactory();
+					Twitter twitter = factory.getInstance();
+					twitter.setOAuthConsumer(bot.getConsumerKey(), bot.getConsumerSecret());
+					AccessToken accessToken = new AccessToken(bot.getAccessToken(), bot.getAccessSecret());
+					twitter.setOAuthAccessToken(accessToken);
+					try{
+						Status updateStatus = twitter.createFavorite(status.getId());
+					} catch(TwitterException e){
+						e.printStackTrace();
+					}
+					gui.GUI.updateStatusText("FAVORITED: " + status.getUser().getScreenName() + ":" + status.getText() + "\n\n");
+					previousActionTime = System.currentTimeMillis();
+				}
 		    }
 		    public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}
 		    public void onTrackLimitationNotice(int numberOfLimitedStatuses) {}
